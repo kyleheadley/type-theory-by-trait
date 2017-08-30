@@ -1,7 +1,7 @@
-use prim::*;
+use base::*;
 
 pub trait Bool {}
-impl Prim for Bool {}
+impl BaseType for Bool {}
 
 pub struct True;
 impl Bool for True {}
@@ -9,8 +9,16 @@ impl Bool for True {}
 pub struct False;
 impl Bool for False {}
 
-pub trait Or<A:Bool,B:Bool> {type F:Bool;}
-impl Or<True,True> for Bool {type F=True;}
-impl Or<True,False> for Bool {type F=True;}
-impl Or<False,True> for Bool {type F=True;}
-impl Or<False,False> for Bool {type F=False;}
+pub struct Or;
+impl Func2<True,True> for Or {type F=True;}
+impl Func2<True,False> for Or {type F=True;}
+impl Func2<False,True> for Or {type F=True;}
+impl Func2<False,False> for Or {type F=False;}
+
+pub trait OrFn<B1:Bool,B2:Bool> {type F:Bool;}
+pub struct TypedOr;
+impl OrFn<True,True> for TypedOr {type F=True;}
+impl OrFn<True,False> for TypedOr {type F=True;}
+impl OrFn<False,True> for TypedOr {type F=True;}
+impl OrFn<False,False> for TypedOr {type F=False;}
+
