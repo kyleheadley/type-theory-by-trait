@@ -12,7 +12,7 @@ use fin::*;
 // type of standard functions [A -> B]
 trait Function<A,B> {}
 
-// type of dependent functions [Π(x:A),B(x):U]or[A -> B:U]
+// type of dependent functions [Π(x:A),B(x):U] or [A -> B:U]
 trait DepFunc<A,U,B:Function<A,U>> {}
 
 
