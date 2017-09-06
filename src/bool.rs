@@ -1,6 +1,6 @@
 use base::*;
 
-pub struct Bool {}
+pub struct Bool;
 
 pub struct True;
 impl Type<Bool> for True {}

@@ -1,6 +1,6 @@
 use base::*;
 
-pub struct Nat {}
+pub struct Nat;
 
 pub struct Zero;
 impl Type<Nat> for Zero {}

@@ -1,5 +1,5 @@
 /// Property that represents a typing of the object its implemented for
-pub trait Type<T:?Sized> {}
+pub trait Type<T> {}
 /// (Partial) untyped function of one variable
 pub trait Func<A> {type F;}
 /// (Partial) untyped function of two variables
