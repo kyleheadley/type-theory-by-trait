@@ -1,10 +1,9 @@
 use base::*;
 
-pub trait ProductType<T1,T2> {}
-impl<T1,T2,P:Type<ProductType<T1,T2>>> ProductType<T1,T2> for P {}
+pub trait Product<T1,T2> {}
 
 pub struct Pair<A,B>(pub A, pub B);
-impl<T1,T2,A:Type<T1>,B:Type<T2>> ProductType<T1,T2> for Pair<A,B> {}
+impl<T1,T2,A:Type<T1>,B:Type<T2>> Product<T1,T2> for Pair<A,B> {}
 
 pub trait UnitType {}
 impl<U:Type<UnitType>> UnitType for U {}

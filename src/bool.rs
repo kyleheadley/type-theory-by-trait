@@ -1,7 +1,6 @@
 use base::*;
 
-pub trait Bool {}
-impl<B:Type<Bool>> Bool for B {}
+pub struct Bool {}
 
 pub struct True;
 impl Type<Bool> for True {}
@@ -15,7 +14,7 @@ impl Func2<True,False> for Or {type F=True;}
 impl Func2<False,True> for Or {type F=True;}
 impl Func2<False,False> for Or {type F=False;}
 
-pub trait OrFn<B1:Bool,B2:Bool> {type F:Bool;}
+pub trait OrFn<B1:Type<Bool>,B2:Type<Bool>> {type F:Type<Bool>;}
 pub struct TypedOr;
 impl OrFn<True,True> for TypedOr {type F=True;}
 impl OrFn<True,False> for TypedOr {type F=True;}

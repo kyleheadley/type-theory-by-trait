@@ -1,13 +1,12 @@
 use base::*;
 
-pub trait Nat {}
-impl<N:Type<Nat>> Nat for N {}
+pub struct Nat {}
 
 pub struct Zero;
 impl Type<Nat> for Zero {}
 
 pub struct Succ<N>(pub N);
-impl<N:Nat> Type<Nat> for Succ<N> {}
+impl<N:Type<Nat>> Type<Nat> for Succ<N> {}
 
 pub struct Pred;
 impl<N:Type<Nat>> Func<Succ<N>> for Pred { type F=N; }

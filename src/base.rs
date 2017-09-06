@@ -8,3 +8,6 @@ pub trait Func2<A,B> {type F;}
 pub trait Judge<A> {}
 /// Untyped judgment on two variables
 pub trait Judge2<A,B> {}
+
+/// Type of functions
+pub trait Arrow<T1,T2> {}
