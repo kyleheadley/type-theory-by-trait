@@ -13,9 +13,3 @@ impl<N:Type<Nat>> Type<Arrow<Nat,Fin<Succ<N>>>> for FMax {}
 impl<N:Type<Nat>> Func<Nat,Fin<Succ<N>>,N> for FMax where
 	GreaterThan: Judge2<Succ<N>,N>
 {type F=FinNum<N,Succ<N>>;}
-
-pub trait FMaxFn<N:Type<Nat>> { type F:Type<Fin<Succ<N>>>;}
-pub struct TypedFMax;
-impl<N:Type<Nat>> FMaxFn<N> for TypedFMax where
-	GreaterThan: Judge2<Succ<N>,N>
-{type F=FinNum<N,Succ<N>>;}
