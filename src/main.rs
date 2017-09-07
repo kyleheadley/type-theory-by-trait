@@ -11,12 +11,15 @@ use nat::*;
 use bool::*;
 use fin::*;
 
-// // type of standard functions [A -> B]
-// trait Function<A,B> {}
+struct BoolOrNat;
+impl Arrow for BoolOrNat {type T1=Bool; type T2=Star;}
+impl Func<False> for BoolOrNat {type F=Bool;}
+impl Func<True> for BoolOrNat {type F=Nat;}
 
-// // type of dependent functions [Π(x:A),B(x):U] or [A -> B:U]
-// trait DepFunc<A,U,B:Function<A,U>> {}
-
+struct FalseOr3;
+impl PiType for FalseOr3 {type T1=Bool; type F=BoolOrNat;}
+impl DFunc<False> for FalseOr3 {type D=False;}
+impl DFunc<True> for FalseOr3 {type D=Succ<Succ<Succ<Zero>>>;}
 
 fn main() {
 

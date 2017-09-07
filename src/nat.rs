@@ -1,6 +1,7 @@
 use base::*;
 
 pub struct Nat(());
+impl Type for Nat {type T=Star;}
 
 pub struct Zero;
 impl Type for Zero {type T=Nat;}

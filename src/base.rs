@@ -1,5 +1,8 @@
 /// Property that represents a typing of the object its implemented for
 pub trait Type {type T:?Sized;}
+/// Temporary type-of-types
+pub struct Star(());
+
 /// Property for type of functions of one variable
 pub trait Arrow {type T1; type T2;}
 /// Property for type of functions of two variables
@@ -10,6 +13,16 @@ pub trait Func<A:Type<T=Self::T1>> : Arrow {type F:Type<T=Self::T2>;}
 /// (Partial) function of two variables
 pub trait Func2<A:Type<T=Self::T1>,B:Type<T=Self::T2>> : Arrow2 {type F:Type<T=Self::T3>;}
 
+/// Type of Dependent functions
+pub trait PiType {
+	type T1;
+	type F:Arrow<T1=Self::T1, T2=Star>;
+}
+
+/// Dependent function
+pub trait DFunc<A:Type<T=Self::T1>> : PiType where
+	Self::F: Func<A>,
+{type D:Type<T=<Self::F as Func<A>>::F>;}
 
 /// Untyped judgment on one variable (predicate)
 pub trait Judge<A> {}

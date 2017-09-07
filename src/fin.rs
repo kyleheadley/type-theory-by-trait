@@ -2,6 +2,7 @@ use base::*;
 use nat::*;
 
 pub struct Fin<N:Type<T=Nat>>(N);
+impl<N:Type<T=Nat>> Type for Fin<N>{type T=Star;}
 
 pub struct FinNum<N:Type<T=Nat>,F:Type<T=Nat>>(pub N,pub F);
 impl<F:Type<T=Nat>,N:Type<T=Nat>> Type for FinNum<N,F> where
