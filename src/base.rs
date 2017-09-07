@@ -29,3 +29,11 @@ pub trait Judge<A> {}
 /// Untyped judgment on two variables
 pub trait Judge2<A,B> {}
 
+/// Composite Function [ A(B(x)) ]
+pub struct Comp<A:Arrow,B:Arrow<T2=A::T1>>(A,B);
+impl<A:Arrow,B:Arrow<T2=A::T1>> Arrow for Comp<A,B> {type T1=B::T1; type T2=A::T2;}
+impl<A:Arrow,B:Arrow<T2=A::T1>,X:Type<T=B::T1>> Func<X> for Comp<A,B> where
+	B: Func<X>,
+	A: Func<<B as Func<X>>::F>,
+{type F=<A as Func<<B as Func<X>>::F>>::F;}
+

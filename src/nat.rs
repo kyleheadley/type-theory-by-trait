@@ -8,6 +8,9 @@ impl Type for Zero {type T=Nat;}
 
 pub struct Succ<N:Type<T=Nat>>(pub N);
 impl<N:Type<T=Nat>> Type for Succ<N> {type T=Nat;}
+pub struct SuccFn;
+impl Arrow for SuccFn {type T1=Nat; type T2=Nat;}
+impl<N:Type<T=Nat>> Func<N> for SuccFn {type F=Succ<N>;}
 
 pub struct Pred;
 impl Arrow for Pred {type T1=Nat; type T2=Nat;}
