@@ -1,6 +1,6 @@
 use base::*;
 
-pub struct Bool(());
+pub struct Bool;
 impl Type for Bool {type T=Star;}
 
 pub struct True;

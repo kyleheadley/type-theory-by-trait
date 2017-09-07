@@ -1,7 +1,7 @@
 /// Property that represents a typing of the object its implemented for
 pub trait Type {type T:?Sized;}
 /// Temporary type-of-types
-pub struct Star(());
+pub struct Star;
 
 /// Property for type of functions of one variable
 pub trait Arrow {type T1; type T2;}
@@ -37,3 +37,7 @@ impl<A:Arrow,B:Arrow<T2=A::T1>,X:Type<T=B::T1>> Func<X> for Comp<A,B> where
 	A: Func<<B as Func<X>>::F>,
 {type F=<A as Func<<B as Func<X>>::F>>::F;}
 
+/// Constant function from any type T to V
+pub struct Const<T,V>(T,V);
+impl<T1,T2,V:Type<T=T2>> Arrow for Const<T1,V> {type T1=T1; type T2=T2;}
+impl<T1,A:Type<T=T1>,T2,V:Type<T=T2>> Func<A> for Const<T1,V> {type F=V;}

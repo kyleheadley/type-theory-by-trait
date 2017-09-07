@@ -7,7 +7,6 @@ pub struct FinFn;
 impl Arrow for FinFn {type T1=Nat; type T2=Star;}
 impl<N:Type<T=Nat>> Func<N> for FinFn {type F=Fin<N>;}
 
-
 pub struct FinNum<N:Type<T=Nat>,F:Type<T=Nat>>(pub N,pub F);
 impl<F:Type<T=Nat>,N:Type<T=Nat>> Type for FinNum<N,F> where
 	GreaterThan: Judge2<F,N>
