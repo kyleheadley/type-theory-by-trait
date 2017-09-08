@@ -4,7 +4,7 @@ use nat::*;
 pub struct Fin<N:Type<T=Nat>>(N);
 impl<N:Type<T=Nat>> Type for Fin<N>{type T=Star;}
 pub struct FinFn;
-impl Arrow for FinFn {type T1=Nat; type T2=Star;}
+impl Type for FinFn {type T=Arrow<Nat,Star>;}
 impl<N:Type<T=Nat>> Func<N> for FinFn {type F=Fin<N>;}
 
 pub struct FinNum<N:Type<T=Nat>,F:Type<T=Nat>>(pub N,pub F);

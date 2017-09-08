@@ -13,7 +13,7 @@ use fin::*;
 
 // Type family
 struct BoolOrNat;
-impl Arrow for BoolOrNat {type T1=Bool; type T2=Star;}
+impl Type for BoolOrNat {type T=Arrow<Bool,Star>;}
 impl Func<False> for BoolOrNat {type F=Bool;}
 impl Func<True> for BoolOrNat {type F=Nat;}
 
