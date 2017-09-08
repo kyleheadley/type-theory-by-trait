@@ -1,4 +1,5 @@
 use base::*;
+use arrow::*;
 
 pub struct Bool;
 impl Type for Bool {type T=Star;}

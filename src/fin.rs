@@ -1,5 +1,8 @@
 use base::*;
+use util::*;
 use nat::*;
+use arrow::*;
+use depend::*;
 
 pub struct Fin<N:Type<T=Nat>>(N);
 impl<N:Type<T=Nat>> Type for Fin<N>{type T=Star;}

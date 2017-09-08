@@ -1,4 +1,5 @@
 use base::*;
+use arrow::*;
 
 pub struct Nat;
 impl Type for Nat {type T=Star;}
