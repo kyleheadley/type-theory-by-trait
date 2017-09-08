@@ -16,7 +16,7 @@ impl<F:Type<T=Nat>,N:Type<T=Nat>> Type for FinNum<N,F> where
 {type T=Fin<F>;}
 
 pub struct FMax;
-impl PiType for FMax {type T1=Nat; type F=Comp<FinFn,SuccFn>;}
+impl Type for FMax {type T=Pi<Nat,Comp<FinFn,SuccFn>>;}
 impl<N:Type<T=Nat>> DFunc<N> for FMax where
 	GreaterThan: Judge2<Succ<N>,N>
 {type D=FinNum<N,Succ<N>>;}

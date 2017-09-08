@@ -25,7 +25,7 @@ impl Func<True> for BoolOrNat {type F=Nat;}
 
 // Dependent function
 struct FalseOr3;
-impl PiType for FalseOr3 {type T1=Bool; type F=BoolOrNat;}
+impl Type for FalseOr3 {type T=Pi<Bool,BoolOrNat>;}
 impl DFunc<False> for FalseOr3 {type D=False;}
 impl DFunc<True> for FalseOr3 {type D=Succ<Succ<Succ<Zero>>>;}
 

@@ -24,5 +24,5 @@ impl<T> Type for IdFn<T> {type T=Arrow<T,T>;}
 impl<T,A:Type<T=T>> Func<A> for IdFn<T> {type F=A;}
 #[allow(non_camel_case_types)]
 pub struct id;
-impl PiType for id {type T1=Star; type F=PolyFn;}
+impl Type for id {type T=Pi<Star,PolyFn>;}
 impl<A:Type<T=Star>> DFunc<A> for id {type D=IdFn<A>;}
