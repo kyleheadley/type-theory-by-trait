@@ -15,14 +15,15 @@ pub struct Const<T,V>(T,V);
 impl<T1,T2,V:Type<T=T2>> Type for Const<T1,V> {type T=Arrow<T1,T2>;}
 impl<T1,A:Type<T=T1>,T2,V:Type<T=T2>> Func<A> for Const<T1,V> {type F=V;}
 
+/// Type Function from A to A->A
+pub struct PolyArrow;
+impl Type for PolyArrow {type T=Arrow<Star,Star>;}
+impl<A:Type<T=Star>> Func<A> for PolyArrow {type F=Arrow<A,A>;}
+
 /// Polymorphic identity fn
-pub struct PolyFn;
-impl Type for PolyFn {type T=Arrow<Star,Star>;}
-impl<A:Type<T=Star>> Func<A> for PolyFn {type F=Arrow<A,A>;}
-pub struct IdFn<T>(T);
-impl<T> Type for IdFn<T> {type T=Arrow<T,T>;}
-impl<T,A:Type<T=T>> Func<A> for IdFn<T> {type F=A;}
-#[allow(non_camel_case_types)]
-pub struct id;
-impl Type for id {type T=Pi<Star,PolyFn>;}
-impl<A:Type<T=Star>> DFunc<A> for id {type D=IdFn<A>;}
+pub struct Id<T>(T);
+impl<T> Type for Id<T> {type T=Arrow<T,T>;}
+impl<T,A:Type<T=T>> Func<A> for Id<T> {type F=A;}
+pub struct IdFn;
+impl Type for IdFn {type T=Pi<Star,PolyArrow>;}
+impl<A:Type<T=Star>> DFunc<A> for IdFn {type D=Id<A>;}
