@@ -1,6 +1,6 @@
 use base::*;
 use arrow::*;
-use depend::*;
+use darrow::*;
 
 /// Composite Function [ A(B(x)) ]
 pub struct Comp<A:FuncType,B:FuncType<T2=A::T1>>(A,B);

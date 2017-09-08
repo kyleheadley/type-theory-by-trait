@@ -2,7 +2,7 @@ use base::*;
 use util::*;
 use nat::*;
 use arrow::*;
-use depend::*;
+use darrow::*;
 
 /// Type of the N finite integers
 pub struct Fin<N:Type<T=Nat>>(N);

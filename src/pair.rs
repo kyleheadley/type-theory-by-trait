@@ -1,12 +1,12 @@
 use base::*;
 use arrow::*;
-use depend::*;
+use darrow::*;
 
-/// Type of empty value
+/// Type of unit value
 pub struct UnitType;
 impl Type for UnitType {type T=Star;}
 
-/// The empty value
+/// The unit value
 pub struct Unit;
 impl Type for Unit {type T=UnitType;}
 
@@ -42,3 +42,4 @@ Func2<F,Pair<A,B>> for PairRecFn<T1,T2,T3> where
 pub struct PairRec<A,B>(A,B);
 impl<A:Type,B:Type> Type for PairRec<A,B> {type T=Pi<Star,PairRecFam<A,B>>;}
 impl<A:Type,B:Type,C:Type<T=Star>> DFunc<C> for PairRec<A,B> {type D=PairRecFn<A,B,C>;}
+
