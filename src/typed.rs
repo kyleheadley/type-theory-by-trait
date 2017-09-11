@@ -1,11 +1,11 @@
 /// Property that represents a typing of the object it's implemented for
 ///
 /// This is required of all values manipulated in this computation system
-pub trait Type {type T;}
+pub trait Typed {type T;}
 
 /// Type-of-types
 pub struct Star;
-impl Type for Star {type T=StarType;}
+impl Typed for Star {type T=StarType;}
 
 /// Type of Stars, not avaliable for manipulation
 pub struct StarType;
