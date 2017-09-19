@@ -37,7 +37,7 @@ pub struct PairRecFn<T1,T2,T3>(T1,T2,T3);
 impl<T1:Typed,T2:Typed,T3:Typed> Typed for PairRecFn<T1,T2,T3> {type T=Arrow2<Arrow2<T1,T2,T3>,Product<T1,T2>,T3>;}
 impl<T1:Typed,T2:Typed,T3:Typed,A:Typed<T=T1>,B:Typed<T=T2>,F:Typed<T=Arrow2<T1,T2,T3>>>
 Func2<F,Pair<A,B>> for PairRecFn<T1,T2,T3> where
-	F: Func2Type<T1=T1,T2=T2,T3=T3>,
+	F: AbsArrow2<T1=T1,T2=T2,T3=T3>,
 	F: Func2<A,B>,
 {type F=<F as Func2<A,B>>::F;}
 pub struct PairRec<A,B>(A,B);

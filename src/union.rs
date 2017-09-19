@@ -39,8 +39,8 @@ impl<A:Typed,B:Typed,C:Typed,G0:Typed<T=Arrow<A,C>>,G1:Typed<T=Arrow<B,C>>> Func
 pub struct CoproductRecInner2<A:Typed,B:Typed,C:Typed,G0:Typed<T=Arrow<A,C>>,G1:Typed<T=Arrow<B,C>>>(A,B,C,G0,G1);
 impl<A:Typed,B:Typed,C:Typed,G0:Typed<T=Arrow<A,C>>,G1:Typed<T=Arrow<B,C>>> Typed for CoproductRecInner2<A,B,C,G0,G1> {type T=Arrow<Coproduct<A,B>,C>;}
 impl<A:Typed,B:Typed,C:Typed,G0:Typed<T=Arrow<A,C>>,G1:Typed<T=Arrow<B,C>>,X:Typed<T=A>> Func<Inl<A,B,X>> for CoproductRecInner2<A,B,C,G0,G1> where
-	G0: Func<X>+FuncType<T1=A,T2=C>,
+	G0: Func<X>+AbsArrow<T1=A,T2=C>,
 {type F=<G0 as Func<X>>::F;}
 impl<A:Typed,B:Typed,C:Typed,G0:Typed<T=Arrow<A,C>>,G1:Typed<T=Arrow<B,C>>,X:Typed<T=B>> Func<Inr<A,B,X>> for CoproductRecInner2<A,B,C,G0,G1> where
-	G1: Func<X>+FuncType<T1=B,T2=C>,
+	G1: Func<X>+AbsArrow<T1=B,T2=C>,
 {type F=<G1 as Func<X>>::F;}

@@ -3,9 +3,9 @@ use arrow::*;
 use darrow::*;
 
 /// Composite Function [ A(B(x)) ] Comp<a:B->A,b:X->B> := X->A
-pub struct Comp<A:FuncType,B:FuncType<T2=A::T1>>(A,B);
-impl<A:FuncType,B:FuncType<T2=A::T1>> Typed for Comp<A,B> {type T=Arrow<B::T1,A::T2>;}
-impl<A:FuncType,B:FuncType<T2=A::T1>,X:Typed<T=B::T1>> Func<X> for Comp<A,B> where
+pub struct Comp<A:AbsArrow,B:AbsArrow<T2=A::T1>>(A,B);
+impl<A:AbsArrow,B:AbsArrow<T2=A::T1>> Typed for Comp<A,B> {type T=Arrow<B::T1,A::T2>;}
+impl<A:AbsArrow,B:AbsArrow<T2=A::T1>,X:Typed<T=B::T1>> Func<X> for Comp<A,B> where
 	B: Func<X>,
 	A: Func<<B as Func<X>>::F>,
 {type F=<A as Func<<B as Func<X>>::F>>::F;}
