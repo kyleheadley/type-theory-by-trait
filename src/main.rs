@@ -6,6 +6,7 @@ mod arrow;
 mod darrow;
 mod pair;
 mod abspair;
+mod dpair;
 mod union;
 mod nat;
 mod bool;

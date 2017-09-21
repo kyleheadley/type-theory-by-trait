@@ -4,6 +4,7 @@
 pub trait Typed {type T;}
 
 /// Type-of-types
+/// * : StarType
 pub struct Star;
 impl Typed for Star {type T=StarType;}
 
