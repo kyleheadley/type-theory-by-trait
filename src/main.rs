@@ -11,6 +11,7 @@ mod union;
 mod nat;
 mod bool;
 mod fin;
+mod stlc;
 use typed::*;
 use util::*;
 use arrow::*;
