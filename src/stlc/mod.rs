@@ -25,7 +25,7 @@ impl<N> Syntax<Variable> for Var<Succ<N>> where
 
 // Terms
 
-impl<N> Syntax<Term> for Var<N> {}
+impl<V> Syntax<Term> for Var<V> {}
 
 /// Lambdas [λx:T.t]
 pub struct L<V,Ty,Tm>(V,Ty,Tm);
@@ -40,6 +40,10 @@ impl<A,B> Syntax<Term> for (A,B) where
 	A: Syntax<Term>,
 	B: Syntax<Term>,
 {}
+
+// base values are terms
+impl Syntax<Term> for True {}
+impl Syntax<Term> for False {}
 
 // Types
 
@@ -61,18 +65,66 @@ impl<V,Ty,Tm> Syntax<Value> for L<V,Ty,Tm> where
 {}
 
 // boolean values
-impl Context<Value> for True {}
-impl Context<Value> for False {}
+impl Syntax<Value> for True {}
+impl Syntax<Value> for False {}
 
 // contexts
 
-struct EmptyCtx;
-impl Syntax<Context> for EmptyCtx {}
+pub struct EmptyCtxt;
+impl Syntax<Context> for EmptyCtxt {}
 
-struct Bind<G,V,T>(G,V,T);
+pub struct Bind<G,V,T>(G,V,T);
 impl<G,V,T> Syntax<Context> for Bind<G,V,T> where
 	G: Syntax<Context>,
 	V: Syntax<Variable>,
 	T: Syntax<Type>,
 {}
 
+// Relations
+
+pub trait Evaluation {type Result;}
+pub trait Relation {}
+pub trait Proven : Relation {}
+
+// Typing
+
+pub struct Typing<G,Tm,Ty>(G,Tm,Ty);
+impl<G,Tm,Ty> Relation for Typing<G,Tm,Ty> where
+	G: Syntax<Context>,
+	Tm: Syntax<Term>,
+	Ty: Syntax<Type>,
+{}
+
+// T-Var
+// TODO
+
+// T-Abs
+impl<G,X,T1,T2,Tm> Proven for Typing<G,L<X,T1,Tm>,Arrow<T1,T2>> where
+	G: Syntax<Context>,
+	X: Syntax<Variable>,
+	T1: Syntax<Type>+Typed,
+	T2: Syntax<Type>+Typed,
+	Tm: Syntax<Term>,
+	Typing<Bind<G,X,T1>,Tm,T2> : Proven,
+{}
+
+// // T-App
+// impl<G,Tm1,Tm2,T1,T2> Proven for Typing<G,(Tm1,Tm2),T2> where
+// 	G: Syntax<Context>,
+// 	Tm1: Syntax<Term>,
+// 	Tm2: Syntax<Term>,
+// 	T1: Syntax<Type>+Typed,
+// 	T2: Syntax<Type>+Typed,
+// 	Typing<G,Tm1,Arrow<T1,T2>> : Proven,
+// 	Typing<G,Tm2,T1> : Proven,
+// {}
+
+// T-True
+impl<G> Proven for Typing<G,True,Bool> where
+	G: Syntax<Context>,
+{}
+
+// T-False
+impl<G> Proven for Typing<G,False,Bool> where
+	G: Syntax<Context>,
+{}
