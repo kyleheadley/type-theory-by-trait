@@ -1,5 +1,6 @@
 use typed::*;
 use arrow::*;
+use bool::*;
 
 /// Type of natural numbers
 pub struct Nat;
@@ -27,6 +28,15 @@ impl<N:Typed<T=Nat>> Judge2<Succ<N>,Zero> for GreaterThan {}
 impl<N1:Typed<T=Nat>,N2:Typed<T=Nat>> Judge2<Succ<N1>,Succ<N2>> for GreaterThan where
   GreaterThan: Judge2<N1,N2>
 {}
+
+/// Boolean function of N1 > N2
+pub struct IsGreater;
+impl Typed for IsGreater {type T=Arrow2<Nat,Nat,Bool>;}
+impl<N:Typed<T=Nat>> Func2<Zero,N> for IsGreater {type F=False;}
+impl<N:Typed<T=Nat>> Func2<Succ<N>,Zero> for IsGreater {type F=True;}
+impl<N1:Typed<T=Nat>,N2:Typed<T=Nat>> Func2<Succ<N1>,Succ<N2>> for IsGreater where
+	IsGreater: Func2<N1,N2>
+{type F=<IsGreater as Func2<N1,N2>>::F;}
 
 /// Addition function for Nat
 pub struct Plus;
