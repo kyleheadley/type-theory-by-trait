@@ -14,7 +14,6 @@ pub struct Context;
 
 // Variables
 
-// TODO: add equality requirements
 /// Variables wrapped in Var<> for readability
 pub struct Var<V>(V);
 // Using numbers as variables
@@ -22,6 +21,16 @@ impl Syntax<Variable> for Var<Zero> {}
 impl<N> Syntax<Variable> for Var<Succ<N>> where
 	N:Typed<T=Nat>,
 {}
+/// Equality for variables (meta func)
+pub struct VarEqual;
+impl<N1,N2,Result> MetaFunc2<Var<N1>,Var<N2>> for VarEqual where
+	Var<N1>: Syntax<Variable>,
+	Var<N2>: Syntax<Variable>,
+	N1:Typed<T=Nat>,
+	N2:Typed<T=Nat>,
+	Result: Typed<T=Bool>,
+	IsEqual: Func2<N1,N2,F=Result>
+{type M=Result;}
 
 // Terms
 
@@ -80,6 +89,31 @@ impl<G,V,T> Syntax<Context> for Bind<G,V,T> where
 	T: Syntax<Type>,
 {}
 
+// Γ(x)
+pub trait Lookup<X> {type L;}
+impl<X,G,V,T,Eq,Result> Lookup<X> for Bind<G,V,T> where
+	X: Syntax<Variable>,
+	G: Syntax<Context>,
+	V: Syntax<Variable>,
+	T: Syntax<Type>,
+	VarEqual: MetaFunc2<X,V,M=Eq>,
+	Bind<G,V,T>: LookupFinish<Eq,X,L=Result>,
+{type L=Result;}
+pub trait LookupFinish<B,X> {type L;}
+impl<X,G,V,T> LookupFinish<True,X> for Bind<G,V,T> where
+	X: Syntax<Variable>,
+	G: Syntax<Context>,
+	V: Syntax<Variable>,
+	T: Syntax<Type>,
+{type L=T;}
+impl<X,G,V,T,Result> LookupFinish<False,X> for Bind<G,V,T> where
+	X: Syntax<Variable>,
+	G: Syntax<Context>,
+	V: Syntax<Variable>,
+	T: Syntax<Type>,
+	G: Lookup<X,L=Result>,
+{type L=Result;}
+
 // Relations
 
 pub trait Evaluation {type Result;}
@@ -91,7 +125,11 @@ pub trait Proven : Relation {}
 pub struct Typing<G,Tm>(G,Tm);
 
 // T-Var
-// TODO
+impl<G,V,Result> Evaluation for Typing<G,V> where
+	G: Syntax<Context>,
+	V: Syntax<Variable>,
+	G: Lookup<V,L=Result>
+{type Result=Result;}
 
 // T-Abs
 impl<G,X,T1,T2,Tm> Evaluation for Typing<G,L<X,T1,Tm>> where

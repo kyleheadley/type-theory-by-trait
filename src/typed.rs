@@ -15,3 +15,8 @@ pub struct StarType;
 pub trait Judge<A> {}
 /// Untyped judgment on two variables
 pub trait Judge2<A,B> {}
+
+/// Untyped Function of one variable
+pub trait MetaFunc<A> {type M;}
+/// Untyped Function of two variables
+pub trait MetaFunc2<A,B> {type M;}
