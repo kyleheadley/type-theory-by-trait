@@ -88,43 +88,38 @@ pub trait Proven : Relation {}
 
 // Typing
 
-pub struct Typing<G,Tm,Ty>(G,Tm,Ty);
-impl<G,Tm,Ty> Relation for Typing<G,Tm,Ty> where
-	G: Syntax<Context>,
-	Tm: Syntax<Term>,
-	Ty: Syntax<Type>,
-{}
+pub struct Typing<G,Tm>(G,Tm);
 
 // T-Var
 // TODO
 
 // T-Abs
-impl<G,X,T1,T2,Tm> Proven for Typing<G,L<X,T1,Tm>,Arrow<T1,T2>> where
+impl<G,X,T1,T2,Tm> Evaluation for Typing<G,L<X,T1,Tm>> where
 	G: Syntax<Context>,
 	X: Syntax<Variable>,
 	T1: Syntax<Type>+Typed,
 	T2: Syntax<Type>+Typed,
 	Tm: Syntax<Term>,
-	Typing<Bind<G,X,T1>,Tm,T2> : Proven,
-{}
+	Typing<Bind<G,X,T1>,Tm> : Evaluation<Result=T2>,
+{type Result=Arrow<T1,T2>;}
 
-// // T-App
-// impl<G,Tm1,Tm2,T1,T2> Proven for Typing<G,(Tm1,Tm2),T2> where
-// 	G: Syntax<Context>,
-// 	Tm1: Syntax<Term>,
-// 	Tm2: Syntax<Term>,
-// 	T1: Syntax<Type>+Typed,
-// 	T2: Syntax<Type>+Typed,
-// 	Typing<G,Tm1,Arrow<T1,T2>> : Proven,
-// 	Typing<G,Tm2,T1> : Proven,
-// {}
+// T-App
+impl<G,Tm1,Tm2,T1,T2> Evaluation for Typing<G,(Tm1,Tm2)> where
+	G: Syntax<Context>,
+	Tm1: Syntax<Term>,
+	Tm2: Syntax<Term>,
+	T1: Syntax<Type>+Typed,
+	T2: Syntax<Type>+Typed,
+	Typing<G,Tm1> : Evaluation<Result=Arrow<T1,T2>>,
+	Typing<G,Tm2> : Evaluation<Result=T1>,
+{type Result=T2;}
 
 // T-True
-impl<G> Proven for Typing<G,True,Bool> where
+impl<G> Evaluation for Typing<G,True> where
 	G: Syntax<Context>,
-{}
+{type Result=Bool;}
 
 // T-False
-impl<G> Proven for Typing<G,False,Bool> where
+impl<G> Evaluation for Typing<G,False> where
 	G: Syntax<Context>,
-{}
+{type Result=Bool;}
