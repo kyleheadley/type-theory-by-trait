@@ -38,6 +38,25 @@ impl<N1:Typed<T=Nat>,N2:Typed<T=Nat>> Func2<Succ<N1>,Succ<N2>> for IsGreater whe
 	IsGreater: Func2<N1,N2>
 {type F=<IsGreater as Func2<N1,N2>>::F;}
 
+/// Boolean function of N1 ≥ N2
+pub struct IsGreaterEq;
+impl Typed for IsGreaterEq {type T=Arrow2<Nat,Nat,Bool>;}
+impl<N:Typed<T=Nat>> Func2<Zero,Succ<N>> for IsGreaterEq {type F=False;}
+impl<N:Typed<T=Nat>> Func2<N,Zero> for IsGreaterEq {type F=True;}
+impl<N1:Typed<T=Nat>,N2:Typed<T=Nat>> Func2<Succ<N1>,Succ<N2>> for IsGreaterEq where
+	IsGreaterEq: Func2<N1,N2>
+{type F=<IsGreaterEq as Func2<N1,N2>>::F;}
+
+/// Boolean function of N1 = N2
+pub struct IsEqual;
+impl Typed for IsEqual {type T=Arrow2<Nat,Nat,Bool>;}
+impl Func2<Zero,Zero> for IsEqual {type F=True;}
+impl<N:Typed<T=Nat>> Func2<Succ<N>,Zero> for IsEqual {type F=False;}
+impl<N:Typed<T=Nat>> Func2<Zero,Succ<N>> for IsEqual {type F=False;}
+impl<N1:Typed<T=Nat>,N2:Typed<T=Nat>> Func2<Succ<N1>,Succ<N2>> for IsEqual where
+	IsEqual: Func2<N1,N2>,
+{type F=<IsEqual as Func2<N1,N2>>::F;}
+
 /// Addition function for Nat
 pub struct Plus;
 impl Typed for Plus {type T=Arrow2<Nat,Nat,Nat>;}
