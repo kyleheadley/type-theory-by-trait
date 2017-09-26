@@ -3,7 +3,10 @@ use arrow::*;
 
 /// Type of dependent functions
 pub struct Pi<T1:Typed,Tf:Typed<T=Arrow<T1,Star>>>(T1,Tf);
-impl<T1:Typed,Tf:Typed<T=Arrow<T1,Star>>> Typed for Pi<T1,Tf> {type T=Star;}
+impl<T1:Typed,Tf:Typed<T=Arrow<T1,Star>>> Typed for Pi<T1,Tf> {
+	fn reflect() -> String {format!("PI({})[{}]",T1::reflect(),Tf::reflect())}
+	type T=Star;
+}
 /// Property used for defining dependent functions
 pub trait DFuncType {type T1:Typed; type Tf:Typed<T=Arrow<Self::T1,Star>>;}
 impl<T1:Typed,Tf:Typed<T=Arrow<T1,Star>>,P:Typed<T=Pi<T1,Tf>>> DFuncType for P {type T1=T1; type Tf=Tf;}

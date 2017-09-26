@@ -25,19 +25,28 @@ use fin::*;
 
 // Type family
 struct BoolOrNat;
-impl Typed for BoolOrNat {type T=Arrow<Bool,Star>;}
+impl Typed for BoolOrNat {
+	fn reflect() -> String {format!("BN()")}
+	type T=Arrow<Bool,Star>;
+}
 impl Func<False> for BoolOrNat {type F=Bool;}
 impl Func<True> for BoolOrNat {type F=Nat;}
 
 // Dependent function
 struct FalseOr3;
-impl Typed for FalseOr3 {type T=Pi<Bool,BoolOrNat>;}
+impl Typed for FalseOr3 {
+	fn reflect() -> String {format!("F3()")}
+	type T=Pi<Bool,BoolOrNat>;
+}
 impl DFunc<False> for FalseOr3 {type D=False;}
 impl DFunc<True> for FalseOr3 {type D=Succ<Succ<Succ<Zero>>>;}
 
 // Type family
 struct NatToBoolOrNat;
-impl Typed for NatToBoolOrNat {type T=Arrow<Nat,Star>;}
+impl Typed for NatToBoolOrNat {
+	fn reflect() -> String {format!("NBN()")}
+	type T=Arrow<Nat,Star>;
+}
 impl<N:Typed<T=Nat>> Func<N> for NatToBoolOrNat where
 	IsGreater: Func2<Succ<Succ<Succ<Zero>>>,N>,
 	BoolOrNat: Func<<IsGreater as Func2<Succ<Succ<Succ<Zero>>>,N>>::F>
@@ -47,7 +56,10 @@ impl<N:Typed<T=Nat>> Func<N> for NatToBoolOrNat where
 
 // Dependent function
 struct TrueOr2;
-impl Typed for TrueOr2 {type T=Pi<Nat,NatToBoolOrNat>;}
+impl Typed for TrueOr2 {
+	fn reflect() -> String {format!("T2()")}
+	type T=Pi<Nat,NatToBoolOrNat>;
+}
 impl DFunc<Zero> for TrueOr2 {type D=Zero;}
 // impl<N:Typed<T=Nat>> DFunc<Succ<N>> for TrueOr2 where
 // 	IsGreater: Func2<Succ<Succ<Zero>>,N>,

@@ -4,34 +4,55 @@ use darrow::*;
 
 /// Type of unit value
 pub struct UnitType;
-impl Typed for UnitType {type T=Star;}
+impl Typed for UnitType {
+	fn reflect() -> String {format!("[]")}
+	type T=Star;
+}
 
 /// The unit value
 pub struct Unit;
-impl Typed for Unit {type T=UnitType;}
+impl Typed for Unit {
+	fn reflect() -> String {format!("()")}
+	type T=UnitType;
+}
 
 /// Type of pairs
 pub struct Product;
-impl Typed for Product {type T=Star;}
+impl Typed for Product {
+	fn reflect() -> String {format!("Product")}
+	type T=Star;
+}
 //pub trait ProductTyped : Typed<T=Product> {type T1:Typed; type T2:Typed;}
 
 /// Pairs of values
 pub struct Pair<A:Typed,B:Typed>(A,B);
-impl<A:Typed,B:Typed> Typed for Pair<A,B> {type T=Product;}
+impl<A:Typed,B:Typed> Typed for Pair<A,B> {
+	fn reflect() -> String {format!("({},{})",A::reflect(),B::reflect())}
+	type T=Product;
+}
 //impl<T1:Typed,T2:Typed,A:Typed<T=T1>,B:Typed<T=T2>> ProductTyped for Pair<A,B> {type T1=T1; type T2=T2;}
 
 
 /// Projection of first value (parameterized by value type)
 pub struct Fst<T1:Typed,T2:Typed>(T1,T2);
-impl<T1:Typed,T2:Typed> Typed for Fst<T1,T2> {type T=Arrow<Product,T1>;}
+impl<T1:Typed,T2:Typed> Typed for Fst<T1,T2> {
+	fn reflect() -> String {format!("({}x{})",T1::reflect(),T2::reflect())}
+	type T=Arrow<Product,T1>;
+}
 impl<T1:Typed,T2:Typed,A:Typed<T=T1>,B:Typed<T=T2>> Func<Pair<A,B>> for Fst<T1,T2> {type F=A;}
 
 /// Dependent first projection
 pub struct Dfst;
-impl Typed for Dfst{type T=Pi<Product,DfstFm>;}
+impl Typed for Dfst{
+	fn reflect() -> String {format!("dfirst")}
+	type T=Pi<Product,DfstFm>;
+}
 impl<T1:Typed<T=Star>,A:Typed<T=T1>,B:Typed> DFunc<Pair<A,B>> for Dfst {type D=A;}
 pub struct DfstFm;
-impl Typed for DfstFm{type T=Arrow<Product,Star>;}
+impl Typed for DfstFm{
+	fn reflect() -> String {format!("dfirstfm")}
+	type T=Arrow<Product,Star>;
+}
 impl<T1:Typed<T=Star>,A:Typed<T=T1>,B:Typed> Func<Pair<A,B>> for DfstFm {type F=T1;}
 //impl<T1:Typed<T=Star>,P:ProductTyped<T1=T1>> Func<P> for DfstFm {type F=T1;}
 

@@ -4,7 +4,10 @@ use darrow::*;
 
 /// Type of dependent pairs
 pub struct Sigma<T1:Typed,Tf:Typed<T=Arrow<T1,Star>>>(T1,Tf);
-impl<T1:Typed,Tf:Typed<T=Arrow<T1,Star>>> Typed for Sigma<T1,Tf> {type T=Star;}
+impl<T1:Typed,Tf:Typed<T=Arrow<T1,Star>>> Typed for Sigma<T1,Tf> {
+	fn reflect() -> String {format!("Sig({})[{}]",T1::reflect(),Tf::reflect())}
+	type T=Star;
+}
 
 /// Dependent pairs of values
 pub struct DPair<Tf,A,B>(Tf,A,B) where
@@ -19,7 +22,10 @@ impl<T1,Tf,A,B> Typed for DPair<Tf,A,B> where
 	Tf:AbsArrow<T1=A::T,T2=Star>+Func<A>,
 	A:Typed<T=T1>,
 	B:Typed<T=Tf::F>,
-{type T=Sigma<T1,Tf>;}
+{
+	fn reflect() -> String {format!("({},{})",A::reflect(),B::reflect())}
+	type T=Sigma<T1,Tf>;
+}
 
 // pub struct Dfst;
 // impl<A:Typed,Tf:Typed> Typed for Dfst where
