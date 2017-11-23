@@ -140,14 +140,15 @@ pub struct Typing<G,Tm>(G,Tm);
 // 	G: Lookup<V>
 // {type Result=<G as Lookup<V>>::L;}
 
-// // T-Abs
-// impl<G,X,T1,Tm> Evaluation for Typing<G,Lam<X,T1,Tm>> where
-// 	G: Syntax<Context>,
-// 	X: Syntax<Variable>,
-// 	T1: Syntax<Type>+Typed,
-// 	Tm: Syntax<Term>,
-// 	Typing<Bind<G,X,T1>,Tm> : Evaluation,
-// {type Result=Arrow<T1,<Typing<Bind<G,X,T1>,Tm> as Evaluation>::Result>;}
+// T-Abs
+impl<G,X,T1,T2,Tm> Evaluation for Typing<G,Lam<X,T1,Tm>> where
+	G: Syntax<Context>,
+	X: Syntax<Variable>,
+	T1: Syntax<Type>+Typed,
+	T2: Syntax<Type>+Typed,
+	Tm: Syntax<Term>,
+	Typing<Bind<G,X,T1>,Tm> : Evaluation<Result=T2>,
+{type Result=Arrow<T1,T2>;}
 
 // // T-App
 // impl<G,Tm1,Tm2,T1,T2> Evaluation for Typing<G,(Tm1,Tm2)> where
@@ -160,28 +161,32 @@ pub struct Typing<G,Tm>(G,Tm);
 // 	Typing<G,Tm2> : Evaluation<Result=T1>,
 // {type Result=T2;}
 
-// T-True
-impl<G> Evaluation for Typing<G,True> where
-	G: Syntax<Context>,
-{type Result=Bool;}
+// // T-True
+// impl<G> Evaluation for Typing<G,True> where
+// 	G: Syntax<Context>,
+// {type Result=Bool;}
 
-// T-False
-impl<G> Evaluation for Typing<G,False> where
-	G: Syntax<Context>,
-{type Result=Bool;}
+// // T-False
+// impl<G> Evaluation for Typing<G,False> where
+// 	G: Syntax<Context>,
+// {type Result=Bool;}
 
 
 
 // Tests
 
-trait Same<X> {}
-impl<X> Same<X> for X {}
+// type R1 = <Typing<EmptyCtxt,True> as Evaluation>::Result;
 
-fn whattype<Tm:View>(tm:Tm) where
-	Tm: Syntax<Term>,
-	Typing<EmptyCtxt,Tm>: Evaluation,
-	<Typing<EmptyCtxt,Tm> as Evaluation>::Result: Typed,
-{println!("{}:{}", Tm::view(), <<Typing<EmptyCtxt,Tm> as Evaluation>::Result>::reflect());}
+// #[test] fn show() {println!("{}",R1::view());}
+
+// fn whattype<Tm:View>(tm:Tm) where
+// 	Tm: Syntax<Term>,
+// 	Typing<EmptyCtxt,Tm>: Evaluation,
+// 	<Typing<EmptyCtxt,Tm> as Evaluation>::Result: Typed,
+// {println!("{}:{}", Tm::view(), <<Typing<EmptyCtxt,Tm> as Evaluation>::Result>::reflect());}
+
+// trait Same<X> {}
+// impl<X> Same<X> for X {}
 
 // fn judgetype<Tm,Ty>(tm:Tm,ty:Ty) where
 // 	Tm: Syntax<Term>,
@@ -198,12 +203,12 @@ fn whattype<Tm:View>(tm:Tm) where
 // 	<Typing<G,Tm> as Evaluation>::Result: Same<Ty>
 // {}
 
-#[test] fn checktypes() {
-	whattype(True);
-	// judgetypectxt(
-	// 	Bind(Bind(EmptyCtxt,Var(Zero),Bool),Var(Succ(Zero)),Arrow(Bool,Bool)),
-	// 	Var(Zero),
-	// 	Bool
-	// );
-}
+// #[test] fn checktypes() {
+// 	// whattype(True);
+// 	// judgetypectxt(
+// 	// 	Bind(Bind(EmptyCtxt,Var(Zero),Bool),Var(Succ(Zero)),Arrow(Bool,Bool)),
+// 	// 	Var(Zero),
+// 	// 	Bool
+// 	// );
+// }
 
