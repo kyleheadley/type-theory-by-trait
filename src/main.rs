@@ -12,6 +12,7 @@ mod nat;
 mod bool;
 mod fin;
 mod stlc;
+mod alternates;
 use typed::*;
 use util::*;
 use arrow::*;
