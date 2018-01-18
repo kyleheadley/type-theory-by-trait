@@ -21,7 +21,7 @@ impl<T1:Typed,T2:Typed,V:Typed<T=T2>> Typed for Const<T1,V> {
 }
 impl<T1:Typed,A:Typed<T=T1>,T2:Typed,V:Typed<T=T2>> Func<A> for Const<T1,V> {type F=V;}
 
-/// Type Function PolyArrow := A->(A->A)
+/// Type Function PolyArrow := A:*->(A->A)
 pub struct PolyArrow;
 impl Typed for PolyArrow {
 	fn reflect() -> String {format!("PolyArrow")}
