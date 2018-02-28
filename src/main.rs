@@ -13,6 +13,7 @@ mod bool;
 mod fin;
 mod stlc;
 mod alternates;
+mod proof;
 use typed::*;
 use util::*;
 use arrow::*;
