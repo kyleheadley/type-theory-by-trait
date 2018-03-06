@@ -5,7 +5,12 @@ struct Next<C:Counter>(C);
 impl Counter for Base {}
 impl<C:Counter> Counter for Next<C> {}
 // Meta-language functions over counters
-trait CounterFn2<C1:Counter,C2:Counter> { type C:Counter; }
+trait CounterFn1<C0:Counter> { type C:Counter; }
+trait CounterFn2<C0:Counter,C1:Counter> { type C:Counter; }
+// Predecessor function
+struct Pred;
+impl<I:Counter> CounterFn1<Next<I>> for Pred { type C = I; }
+// Return the greater of the two counters
 struct Max;
 impl<I2:Counter> CounterFn2<Base,I2> for Max { type C = I2; }
 impl<I1:Counter> CounterFn2<Next<I1>,Base> for Max { type C = Next<I1>; }
@@ -23,11 +28,11 @@ trait Typed {
 trait Typ { type T; }
 impl<A:Typed> Typ for A { type T = A::T; } 
 
-// Universe of types
-struct Type<U:Counter>(U);
-impl<U:Counter> Typed for Type<U> {
-	type U = U;
-	type T = Type<Next<U>>;
+// Generic Type for objects in Universe O
+struct Type<O:Counter>(O);
+impl<O:Counter> Typed for Type<O> {
+	type U = Next<O>;
+	type T = Type<Next<O>>;
 }
 
 // Abstract bound for types
@@ -37,67 +42,76 @@ impl<U:Counter> AbstractType for Type<U> {type U = U;}
 // Universe of small types
 type UTypes = Next<Base>;
 // Type of small types
-type TTypes = Type<Next<Next<Base>>>;
+type TTypes = Type<Next<Base>>;
 
 // Simple(non-dependent) function type
-struct Arrow<I,O>(I,O);
-impl<IU,OU,I,O> Typed for Arrow<I,O> where
-	IU : Counter,
-	OU : Counter,
-	I : Typed<U=IU>,
-	O : Typed<U=OU>,
-	Max : CounterFn2<IU,OU>,
+struct Arrow<D:Typed,C:Typed>(D,C);
+impl<D:Typed,C:Typed> Typed for Arrow<D,C> where
+	Max : CounterFn2<D::U,C::U>,
 {
-	type U = <Max as CounterFn2<IU,OU>>::C;
-	type T = Type<Next<<Max as CounterFn2<IU,OU>>::C>>;
+	type U = <Max as CounterFn2<D::U,C::U>>::C;
+	type T = Type<Self::U>;
 }
 
 // Abstract bound for arrows
-trait AbstractArrow {type In; type Out;}
+trait AbstractArrow {type Dom; type CoD;}
 impl<I:Typed,O:Typed> AbstractArrow for Arrow<I,O> {
-	type In=I; type Out=O;
+	type Dom=I; type CoD=O;
 }
 
 // Pi/Dependent function types Π(a:α)β a,
-//	where a is defined later and β:α->Type<u>
-struct DArrow<A,B>(A,B) where
-	A : Typed, B : Typed,
-	B::T : AbstractArrow<In=A>,
-	<B::T as AbstractArrow>::Out : AbstractType
+//	where a is a parameter and ∃u.β:α->Type<u>
+struct DArrow<D:Typed,C:Typed>(D,C) where
+	C::T : AbstractArrow<Dom=D>,
+	<C::T as AbstractArrow>::CoD : AbstractType
 ;
-// TODO:
-// impl Typed for DArrow<A,B> where
-// 	A : Typed, B : Typed,
-// 	B::T : AbstractArrow<In=A>,
-// 	<B::T as AbstractArrow>::Out : AbstractType
-// {
-// 	type U = ;
-// 	type T = ;
-// }
+impl<D:Typed,C:Typed> Typed for DArrow<D,C> where
+	C::T : AbstractArrow<Dom=D>,
+	<C::T as AbstractArrow>::CoD : AbstractType,
+	Max : CounterFn2<D::U,C::U>,
+{
+	type U = <Max as CounterFn2<D::U,C::U>>::C;
+	type T = Type<Self::U>;
+}
 
 // Abstract bound for dependent arrows
-trait AbstractDArrow {type In; type Out; }
+trait AbstractDArrow {type Dom; type CoD; }
 impl<I:Typed,O:Typed> AbstractDArrow for DArrow<I,O> where
-	O::T : AbstractArrow<In=I>,
-	<O::T as AbstractArrow>::Out : AbstractType,
-{ type In=I; type Out=O; }
+	O::T : AbstractArrow<Dom=I>,
+	<O::T as AbstractArrow>::CoD : AbstractType,
+{ type Dom=I; type CoD=O; }
+
+// Type of axioms to be proven
+struct Proposition<ProofUniverse:Counter>(ProofUniverse);
+impl<U:Counter> Typed for Proposition<U> {
+	type U = Next<Next<U>>;
+	type T = Type<Self::U>;
+}
+type Prop = Proposition<Base>;
 
 // Equality Type
 struct Eq<A,B>(A,B);
-impl<A,B> Typed for Eq<A,B> where
-	A : Typed,
-	B : Typed<U=A::U,T=A::T>,
+impl<P,T,A,B> Typed for Eq<A,B> where
+	P : Counter, // Proof Universe number
+	T : Typed<U=Next<Next<P>>>, // Type of A and B
+	A : Typed<U=Next<P>,T=T>,
+	B : Typed<U=Next<P>,T=T>,
 {
-	type U = Next<A::U>;
-	type T = Type<Next<Next<A::U>>>;
+	type U = Next<P>;
+	type T = Proposition<P>;
 }
 
 // The element of equality type
 struct Refl<A>(A);
-impl<A:Typed> Typed for Refl<A> { type U = A::U; type T = Eq<A,A>; }
+impl<U,A> Typed for Refl<A> where
+	U : Counter,
+	A: Typed<U=Next<U>>,
+{
+	type U = U;
+	type T = Eq<A,A>;
+}
 
 // TODO: symm, trans
-
 
 // Type of natural numbers
 struct Nat;
@@ -107,9 +121,7 @@ impl Typed for Nat { type U=UTypes; type T=TTypes; }
 struct Z;
 struct S<N:Typ<T=Nat>>(N);
 impl Typed for Z { type U=Base; type T = Nat;}
-impl<N> Typed for S<N> where
-	N : Typ<T=Nat>
-{
+impl<N:Typ<T=Nat>> Typed for S<N> {
 	type U=Base;
 	type T=Nat;
 }
