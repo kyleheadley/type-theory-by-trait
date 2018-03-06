@@ -54,32 +54,47 @@ impl<D:Typed,C:Typed> Typed for Arrow<D,C> where
 }
 
 // Abstract bound for arrows
-trait AbstractArrow {type Dom; type CoD;}
-impl<I:Typed,O:Typed> AbstractArrow for Arrow<I,O> {
-	type Dom=I; type CoD=O;
+trait AbstractArrow {type Dom:Typed; type CoD:Typed;}
+impl<D:Typed,C:Typed> AbstractArrow for Arrow<D,C> {
+	type Dom=D; type CoD=C;
+}
+
+// Allows defining a function
+trait Func<D:Typed> : Typed where
+	Self::T : AbstractArrow<Dom=D::T>,
+{
+	type F : Typ<T=<Self::T as AbstractArrow>::CoD>;
 }
 
 // Pi/Dependent function types Π(a:α)β a,
 //	where a is a parameter and ∃u.β:α->Type<u>
-struct DArrow<D:Typed,C:Typed>(D,C) where
-	C::T : AbstractArrow<Dom=D>,
-	<C::T as AbstractArrow>::CoD : AbstractType
+struct DArrow<D:Typed,F:Typed>(D,F) where
+	F::T : AbstractArrow<Dom=D>,
+	<F::T as AbstractArrow>::CoD : AbstractType
 ;
-impl<D:Typed,C:Typed> Typed for DArrow<D,C> where
-	C::T : AbstractArrow<Dom=D>,
-	<C::T as AbstractArrow>::CoD : AbstractType,
-	Max : CounterFn2<D::U,C::U>,
+impl<D:Typed,F:Typed> Typed for DArrow<D,F> where
+	F::T : AbstractArrow<Dom=D>,
+	<F::T as AbstractArrow>::CoD : AbstractType,
+	Max : CounterFn2<D::U,F::U>,
 {
-	type U = <Max as CounterFn2<D::U,C::U>>::C;
+	type U = <Max as CounterFn2<D::U,F::U>>::C;
 	type T = Type<Self::U>;
 }
 
 // Abstract bound for dependent arrows
-trait AbstractDArrow {type Dom; type CoD; }
-impl<I:Typed,O:Typed> AbstractDArrow for DArrow<I,O> where
-	O::T : AbstractArrow<Dom=I>,
-	<O::T as AbstractArrow>::CoD : AbstractType,
-{ type Dom=I; type CoD=O; }
+trait AbstractDArrow { type Dom:Typed; type Fam:Typed; }
+impl<D:Typed,F:Typed> AbstractDArrow for DArrow<D,F> where
+	F::T : AbstractArrow<Dom=D>,
+	<F::T as AbstractArrow>::CoD : AbstractType,
+{ type Dom=D; type Fam=F; }
+
+// Allows defining a Dependent function
+trait DFunc<D:Typed> : Typed where
+	Self::T : AbstractDArrow<Dom=D::T>,
+	<<Self::T as AbstractDArrow>::Fam as Typed>::T
+		: AbstractArrow<Dom=<Self::T as AbstractDArrow>::Dom>,
+	<Self::T as AbstractDArrow>::Fam : Func<D>,
+{ type D : Typ<T=<<Self::T as AbstractDArrow>::Fam as Func<D>>::F>; }
 
 // Type of axioms to be proven
 struct Proposition<ProofUniverse:Counter>(ProofUniverse);
@@ -89,7 +104,7 @@ impl<U:Counter> Typed for Proposition<U> {
 }
 type Prop = Proposition<Base>;
 
-// Equality Type
+// Equality Proposition, A = B
 struct Eq<A,B>(A,B);
 impl<P,T,A,B> Typed for Eq<A,B> where
 	P : Counter, // Proof Universe number
@@ -111,6 +126,9 @@ impl<U,A> Typed for Refl<A> where
 	type T = Eq<A,A>;
 }
 
+// Symmetry Proposition, A = B -> B = A
+struct Symm;
+
 // TODO: symm, trans
 
 // Type of natural numbers
@@ -120,7 +138,7 @@ impl Typed for Nat { type U=UTypes; type T=TTypes; }
 // The natural numbers
 struct Z;
 struct S<N:Typ<T=Nat>>(N);
-impl Typed for Z { type U=Base; type T = Nat;}
+impl Typed for Z { type U=Base; type T=Nat; }
 impl<N:Typ<T=Nat>> Typed for S<N> {
 	type U=Base;
 	type T=Nat;
