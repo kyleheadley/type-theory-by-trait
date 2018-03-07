@@ -7,16 +7,28 @@ impl<C:Counter> Counter for Next<C> {}
 // Meta-language functions over counters
 trait CounterFn1<C0:Counter> { type C:Counter; }
 trait CounterFn2<C0:Counter,C1:Counter> { type C:Counter; }
+trait UnEqCounterFn2<C0:Counter,C1:Counter> { type C:Counter; }
+//impl<C0:Counter,C1:Counter,C:UnEqCounterFn2<C0,C1>> CounterFn2<C0,C1> for C { type C = C::C; }
 // Predecessor function
 struct Pred;
 impl<I:Counter> CounterFn1<Next<I>> for Pred { type C = I; }
 // Return the greater of the two counters
 struct Max;
+// we'd like to use this, but how then would you define the fn?
+// impl<C:Counter> CounterFn2<C,C> for Max { type C = C; }
 impl<I2:Counter> CounterFn2<Base,I2> for Max { type C = I2; }
 impl<I1:Counter> CounterFn2<Next<I1>,Base> for Max { type C = Next<I1>; }
 impl<I1:Counter,I2:Counter> CounterFn2<Next<I1>,Next<I2>> for Max where
 	Max : CounterFn2<I1,I2>
-{ type C = Next<<Max as CounterFn2<I1,I2>>::C>;}
+{ type C = Next<<Max as CounterFn2<I1,I2>>::C>; }
+
+// Equality Bounds (overflows on use)
+trait NotEqual {}
+impl<C:Counter> NotEqual for (Base,Next<C>) {}
+impl<C:Counter> NotEqual for (Next<C>,Base) {}
+impl<C1:Counter,C2:Counter> NotEqual for (Next<C1>,Next<C2>) where (C1,C2) : NotEqual {}
+trait Equal {}
+impl<C:Counter> Equal for (C,C) {}
 
 // Type and universe level of an object
 trait Typed {
@@ -116,7 +128,7 @@ impl<P,T,A,B> Typed for Eq<A,B> where
 	type T = Proposition<P>;
 }
 
-// The element of equality type
+// Proof: a =A a 
 struct Refl<A>(A);
 impl<U,A> Typed for Refl<A> where
 	U : Counter,
@@ -125,11 +137,44 @@ impl<U,A> Typed for Refl<A> where
 	type U = U;
 	type T = Eq<A,A>;
 }
+// // Proof: a =T b
+// struct EqAxiom<A,B>(A,B);
+// impl<U,T,A,B> Typed for EqAxiom<A,B> where
+// 	U : Counter,
+// 	T : Typed<U=Next<U>>,
+// 	A : Typed<U=U,T=T>,
+// 	B : Typed<U=U,T=T>,
+// {
+// 	type U = U;
+// 	type T = Eq<A::T,B::T>;
+// }
 
-// Symmetry Proposition, A = B -> B = A
-struct Symm;
+// Proof: A = B -> B = A
+struct Symm<A,B>(A,B);
+impl<P,T,A,B> Typed for Symm<A,B> where
+	P : Counter, // Proof Universe number
+	T : Typed<U=Next<Next<P>>>, // Type of A and B
+	A : Typed<U=Next<P>,T=T>,
+	B : Typed<U=Next<P>,T=T>,
+	// need one or the other of the following
+	Max : CounterFn2<P,P,C=P>,
+	//Arrow<Eq<A,B>,Eq<B,A>> : Typed<U=Next<P>>,
+{
+	type U = P;
+	type T = Arrow<Eq<A,B>,Eq<B,A>>;
+}
+impl<U:Counter,A:Typed<U=Next<U>>> Func<Refl<A>> for Symm<A,A> where
+	Max : CounterFn2<U,U,C=U>,
+{ type F = Refl<A>; }
+// impl<U,T,A,B> Func<EqAxiom<A,B>> for Symm<A,B> where
+// 	U : Counter,
+// 	T : Typed<U=Next<Next<U>>>,
+// 	A : Typed<U=Next<U>,T=T>,
+// 	B : Typed<U=Next<U>,T=T>,
+// 	Max : CounterFn2<U,U,C=U>,
+// { type F = EqAxiom<B,A>; }
 
-// TODO: symm, trans
+// TODO: trans
 
 // Type of natural numbers
 struct Nat;
@@ -144,7 +189,34 @@ impl<N:Typ<T=Nat>> Typed for S<N> {
 	type T=Nat;
 }
 
+// Type of Boolean values
+struct Bool;
+impl Typed for Bool { type U=UTypes; type T=TTypes; }
 
+// The booleans
+struct False;
+struct True;
+impl Typed for False { type U=Base; type T=Bool; }
+impl Typed for True { type U=Base; type T=Bool; }
+
+// Axiom Bool = Nat
+struct BoolIsNat;
+impl Typed for BoolIsNat {
+	type U = Base;
+	type T = Eq<Bool,Nat>;
+}
+
+fn checktype<T,O:Typ<T=T>>() {}
+fn main() {
+	checktype::<
+		Arrow<Eq<Nat,Bool>,Eq<Bool,Nat>>,
+		Symm<Nat,Bool>
+	>();
+	checktype::<
+		Eq<Bool,Bool>,
+		<Symm<Bool,Bool> as Func<Refl<Bool>>>::F
+	>();
+}
 
 
 
