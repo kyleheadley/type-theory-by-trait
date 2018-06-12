@@ -27,9 +27,9 @@ trait NatEq<N:WFNat> { type E:WFBool; }
 impl NatEq<Zero> for Zero { type E=True; }
 impl<N:WFNat> NatEq<Succ<N>> for Zero { type E=False; }
 impl<N:WFNat> NatEq<Zero> for Succ<N> { type E=False; }
-impl<N1:WFNat,N2:WFNat> NatEq<Succ<N1>> for Succ<N2> where
-	N2: NatEq<N1>
-{ type E=<N2 as NatEq<N1>>::E; }
+impl<N1:WFNat,N2:WFNat,B:WFBool> NatEq<Succ<N1>> for Succ<N2> where
+	N2: NatEq<N1,E=B>
+{ type E=B; }
 
 // Arrow type
 trait WFArrow { type In:Type; type Out:Type; }
@@ -46,25 +46,19 @@ impl<N:WFNat,T:Type,C:Context> Context for Cxt<Var<N>,T,C> {}
 // context membership function
 trait Contains<V> { type C:WFBool; type T:Type; }
 impl<N:WFNat> Contains<Var<N>> for Empty { type C=False; type T=Unit; }
-impl<N,N1,T,C> Contains<Var<N>> for Cxt<Var<N1>,T,C> where
-	N:WFNat,N1:WFNat,T:Type,C:Context,
-	N1: NatEq<N>,
-	C: Contains2<<N1 as NatEq<N>>::E,T,Var<N>>,
-{ 
-	type C=< C as Contains2<< N1 as NatEq<N> >::E,T,Var<N>> >::C;
-	type T=< C as Contains2<< N1 as NatEq<N> >::E,T,Var<N>> >::T;
-}
+impl<N,N1,T,C,Eq,C2,T2> Contains<Var<N>> for Cxt<Var<N1>,T,C> where
+	N:WFNat,N1:WFNat,T:Type,C:Context,Eq:WFBool,C2:WFBool,T2:Type,
+	N1: NatEq<N,E=Eq>,
+	C: Contains2<Eq,T,Var<N>,C=C2,T=T2>,
+{ type C=C2; type T=T2; }
 trait Contains2<E,T,V> { type C:WFBool; type T:Type; }
 impl<T:Type,V,C:Context> Contains2<True,T,V> for C { type C=True; type T=T; }
 impl<T:Type,V> Contains2<False,T,V> for Empty { type C=False; type T=Unit; }
-impl<N,N1,T,T1,C1> Contains2<False,T,Var<N>> for Cxt<Var<N1>,T1,C1> where
-	N:WFNat,N1:WFNat,T:Type,T1:Type,C1:Context,
-	N1: NatEq<N>,
-	C1: Contains2<<N1 as NatEq<N>>::E,T,Var<N>>,
-{ 
-	type C=<C1 as Contains2<<N1 as NatEq<N>>::E,T,Var<N>>>::C;
-	type T=<C1 as Contains2<<N1 as NatEq<N>>::E,T,Var<N>>>::T;
-}
+impl<N,N1,T,T1,C1,Eq,C2,T2> Contains2<False,T,Var<N>> for Cxt<Var<N1>,T1,C1> where
+	N:WFNat,N1:WFNat,T:Type,T1:Type,C1:Context,Eq:WFBool,C2:WFBool,T2:Type,
+	N1: NatEq<N,E=Eq>,
+	C1: Contains2<Eq,T1,Var<N>,C=C2,T=T2>,
+{ type C=C2; type T=T2; }
 
 // Syntax
 trait Expr {}
@@ -121,6 +115,17 @@ fn test(){
 			)
 		), Num(Succ(Zero))
 	), Num(Succ(Succ(Zero))));
+	let t = Nat;
+	is_typed(e,t);
+
+	// (λx.λy.y x) 2 (λx.1+x)
+	let e = App(App(
+		Lam(Var(Succ(Zero)),Nat,
+			Lam(Var(Zero),Arrow(Nat,Nat),
+				App(Var(Zero),Var(Succ(Zero)))
+			)
+		), Num(Succ(Succ(Zero)))
+	), Lam(Var(Zero),Nat,Plus(Num(Succ(Zero)),Var(Zero))));
 	let t = Nat;
 	is_typed(e,t);
 }
