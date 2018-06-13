@@ -24,17 +24,17 @@ impl<N1,N2,E> NatEq<Succ<N1>> for Succ<N2> where
 
 // Context
 struct EmptyCtx;
-struct TypeCtx<Var,Typ,Next>(Var,Typ,Next);
+struct TypeCtx<Id,Typ,Next>(Id,Typ,Next);
 
 // context membership function
-trait Contains<Val> { type Result; }
-impl<N> Contains<Var<N>> for EmptyCtx
+trait Contains<Id> { type Result; }
+impl<N> Contains<N> for EmptyCtx
 { type Result=None; }
 
 impl<Check,First,Typ,Next,Eq,R>
-Contains<Var<Check>> for TypeCtx<Var<First>,Typ,Next> where
+Contains<Check> for TypeCtx<First,Typ,Next> where
 	Check: NatEq<First,Eq=Eq>,
-	Next: Contains2<Eq,Typ,Var<Check>,Result=R>,
+	Next: Contains2<Eq,Typ,Check,Result=R>,
 { type Result=R; }
 
 trait Contains2<Eq,Map,Check> { type Result; }
@@ -46,9 +46,9 @@ impl<Map,C> Contains2<False,Map,C> for EmptyCtx
 { type Result=None; }
 
 impl<Check,First,T,Typ,Next,Eq,R>
-Contains2<False,T,Var<Check>> for TypeCtx<Var<First>,Typ,Next> where
+Contains2<False,T,Check> for TypeCtx<First,Typ,Next> where
 	Check: NatEq<First,Eq=Eq>,
-	Next: Contains2<Eq,Typ,Var<Check>,Result=R>,
+	Next: Contains2<Eq,Typ,Check,Result=R>,
 { type Result=R; }
 
 // Syntax
@@ -85,6 +85,8 @@ struct App<E1,E2>(E1,E2);
 impl<E1:Expr,E2:Expr> Expr for App<E1,E2> {}
 
 // Statics
+// -------
+
 trait Typed<Ctx> { type T; }
 impl<N,Ctx> Typed<Ctx> for Num<N> { type T=Number; }
 impl<N1,N2,Ctx> Typed<Ctx> for Plus<N1,N2> where
@@ -92,15 +94,18 @@ impl<N1,N2,Ctx> Typed<Ctx> for Plus<N1,N2> where
 	N2:Typed<Ctx,T=Number>,
 { type T=Number; }
 impl<N,Ctx,T> Typed<Ctx> for Var<N> where
-	Ctx:Contains<Var<N>,Result=Some<T>>
+	Ctx:Contains<N,Result=Some<T>>
 { type T=T; }
 impl<Ctx,N,T1,T2,E> Typed<Ctx> for Lam<Var<N>,T1,E> where
-	E:Typed<TypeCtx<Var<N>,T1,Ctx>,T=T2>,
+	E:Typed<TypeCtx<N,T1,Ctx>,T=T2>,
 { type T=Arrow<T1,T2>; }
 impl<Ctx,E1,E2,T1,T2> Typed<Ctx> for App<E1,E2> where
 	E1:Typed<Ctx,T=Arrow<T1,T2>>,
 	E2:Typed<Ctx,T=T1>
 { type T=T2; }
+
+// Examples
+// --------
 
 fn test(){
 	fn is_wf_expr<E:Expr>(e:&E) {}
